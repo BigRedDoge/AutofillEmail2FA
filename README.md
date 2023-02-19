@@ -1,2 +1,2 @@
 # AutofillEmail2FA
-Automatically Autofill 2FA Code from Email
+Automatically Get 2FA Code from Email
