@@ -11,11 +11,17 @@
     "options_page": "settings/settings.html",
     "action": {
         "default_title": "Autofill Email 2FA",
-        "default_popup": "popup/popup.html"
+        "default_popup": "popup/popup.html",
+        "default_icon": "logo/logo-16.png"
     },
-    "permissions": [],
+    "permissions": [
+        "storage", 
+        "notifications",
+        "identity"
+    ],
     "host_permissions": [
-        "*://*/*"
+        "*://*/*",
+        "https://*.google.com/"
     ],
     "background": {
         "service_worker": "service-worker.js"
@@ -23,5 +29,12 @@
     "content_scripts": [{
         "js": ["foreground.js"],
         "matches": ["*://*/*"]
-    }]
+    }],
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoWMtTMJ76wwg1xxs4c5Z/OY8WSF6+pZtENp9d7xrzexkRxrOdQ9KPRO3tBlOyXOsk0bA7s+/gZ16TeUhRif9L4R9116RZoJjtisJ4e7attQAdN9nR5meoGKV52rI/lDB+Xj/x7KdIakQoj4fxbkxTC+IjA1w+SagdAUeFxabzo3BdZ5mL+REA53RBTQVsIUPs2SVlOlX+HksldNCpD1pHoNmkkxsEyQGjXL+k74uo8tvXsqdSKhzgtWeB/VmlRuI/dfIu3n8y70TiFPCnJpOxPYztxzicL9/aBSy2vryD5Vi+u+kbgwFpTCc+HL/P05bHMOMNezXaTUJegqj39SKSwIDAQAB",
+    "oauth2": {
+        "client_id": "687018203127-98251d87sqqquubh4ab81vvim38dqq3c.apps.googleusercontent.com",
+        "scopes": [
+            "https://www.googleapis.com/auth/gmail.readonly"
+        ]
+    }
 }
