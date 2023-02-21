@@ -17,7 +17,10 @@ chrome.runtime.onMessage.addListener(data => {
 
 chrome.tabs.create({ url: chrome.runtime.getURL('index.html')})
 
-
+/**
+ * Saves the user's email to chrome storage
+ * @returns the user's email
+ */
 async function setEmail() {
     let token = await getToken();
     let email = fetch(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${token}`)
@@ -31,6 +34,10 @@ async function setEmail() {
     return email;
 }
 
+/**
+ * Gets the user's oauth token from chrome storage
+ * @returns the user's oauth token
+ */
 function getToken() {
     const token = new Promise(function(resolve, reject) {
         return chrome.storage.sync.get('token').then((token) => {
