@@ -1,5 +1,8 @@
 THREAD_COUNT = 10;
-
+/**
+ * Get the token from the chrome storage
+ * @returns {Promise} token as a Promise 
+ */
 function getToken() {
     const token = new Promise(function(resolve, reject) {
         return chrome.storage.sync.get('token').then((token) => {
@@ -9,6 +12,10 @@ function getToken() {
     return token;
 }
 
+/**
+ * Get the user email from chrome storage
+ * @returns {Promise} email as a Promise 
+ */
 function getEmail() {
     const email = new Promise(function(resolve, reject) {
         return chrome.storage.sync.get('email').then((email) => {
@@ -18,7 +25,11 @@ function getEmail() {
     return email;
 }
 
-
+/**
+ * Gets the email threads from the user's inbox
+ * @param {*} theadCount 
+ * @returns Array of email thread ids
+ */
 async function getEmailThreads(theadCount = 10) {
     let email = await getEmail();
     let token = await getToken();
@@ -30,6 +41,11 @@ async function getEmailThreads(theadCount = 10) {
     return threads;
 }
 
+/**
+ * Gets the email thread ids from the email threads
+ * @param {*} threads
+ * @returns Array of email thread ids
+ */
 function getEmailThreadIds(threads) {
     let tmap =  threads.threads.map((thread) => {
         return thread.id;
@@ -37,6 +53,11 @@ function getEmailThreadIds(threads) {
     return tmap;
 }
 
+/**
+ * Gets the email message data using the thread id
+ * @param {*} thread_id
+ * @returns Email message
+ */
 async function getMessage(thread_id) {
     let email = await getEmail();
     let token = await getToken();
@@ -44,17 +65,28 @@ async function getMessage(thread_id) {
     return message;
 }
 
+/**
+ * Gets the email messages from the email threads
+ * @param {*} thread_ids
+ * @returns Array of email messages
+ */
 async function getEmailMessages(thread_ids) {
     let messages = [];
     for (let i = 0; i < thread_ids.length; i++) {
         let message = await getMessage(thread_ids[i]);
         message = await message.json();
-        console.log("Message: ", message);
-        messages.push(message);
+        //console.log("Message: ", message);
+        parsedMessage = parseMessage(message);
+        messages.push(parsedMessage);
     }
     return messages;
 }
 
+/**
+ * Gets the email messages from the email threads
+ * @param {*} thread_ids
+ * @returns Array of email messages
+ */
 async function getMessages() {
     let threads = await getEmailThreads(THREAD_COUNT);
     let messages = await getEmailMessages(threads);
@@ -62,11 +94,25 @@ async function getMessages() {
 }
 
 getMessages().then((messages) => {
-    message = messages[0];
-    payload = message.payload;
-    parts = payload.parts;
-    b64text = parts[0].body;
-    text = atob(b64text.data);
-    console.log(text);
+    for (let i = 0; i < messages.length; i++) {
+        console.log(messages[i]);
+    }
 });
+
+/**
+ * Converts the email message from base64 to text
+ * @param {*} message
+ * @returns Text of the email message
+ */
+function parseMessage(message) {
+    let b64text = message.payload.body;
+    if (b64text.size == 0) {
+        b64text = message.payload.parts[0].body.data;
+    } else {
+        b64text = b64text.data;
+    }
+    b64text = b64text.replace(/-/g, '+').replace(/_/g, '/');
+    let text = window.atob(b64text)
+    return text;
+}
 
