@@ -76,7 +76,8 @@ async function getEmailMessages(thread_ids) {
         let message = await getMessage(thread_ids[i]);
         message = await message.json();
         //console.log("Message: ", message);
-        parsedMessage = parseMessage(message);
+        parsedMessage = parseEmailBody(message);
+        senderEmail = parseSenderEmail(message);
         messages.push(parsedMessage);
     }
     return messages;
@@ -104,7 +105,7 @@ getMessages().then((messages) => {
  * @param {*} message
  * @returns Text of the email message
  */
-function parseMessage(message) {
+function parseEmailBody(message) {
     let b64text = message.payload.body;
     if (b64text.size == 0) {
         b64text = message.payload.parts[0].body.data;
@@ -116,3 +117,6 @@ function parseMessage(message) {
     return text;
 }
 
+function parseSenderEmail(message) {
+    
+}
