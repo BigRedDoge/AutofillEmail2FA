@@ -1,3 +1,4 @@
+/*
 chrome.runtime.onMessage.addListener(data => {
     console.log('Service worker received message', data)
     
@@ -14,7 +15,7 @@ chrome.runtime.onMessage.addListener(data => {
         )
     }
 });
-
+*/
 chrome.tabs.create({ url: chrome.runtime.getURL('index.html')})
 
 /**
@@ -71,8 +72,17 @@ async function getEmailThreads(theadCount = 10) {
         });
     return threads;
 }
-/*
-getEmailThreads().then((threads) => {
-    console.log(threads);
-});
-*/
+
+chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+        console.log("Tab: ", sender);
+        console.log("Request: ", request);
+        /*
+        console.log(sender.tab ?
+                    "from a content script:" + sender.tab.url :
+                    "from the extension");
+        */
+        if (request.tab)
+            sendResponse({farewell: "goodbye"});
+    }
+);

@@ -151,7 +151,7 @@ function get2FACode(body) {
     console.log(body.match(/(\d{6})/g));
     return code;
 }
-
+/*
 getEmails().then((messages) => {
     console.log("Messages: ", messages);
     messages.forEach((message) => {
@@ -159,3 +159,9 @@ getEmails().then((messages) => {
         console.log("Code: ", code);
     });
 });
+*/
+(async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const response = await chrome.runtime.sendMessage({tab: tab});
+    console.log("Response: ", response);
+})();
