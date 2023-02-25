@@ -36,7 +36,11 @@ async function getEmailThreads(theadCount = 10) {
     let threads = fetch(`https://gmail.googleapis.com/gmail/v1/users/${email}/threads?access_token=${token}&maxResults=${theadCount}`)
         .then((response) => response.json())
         .then((data) => {
-            return getEmailThreadIds(data);
+            let ids = [];
+            for (let i = 0; i < data.threads.length; i++) {
+                ids.push(data.threads[i].id)
+            }
+            return ids;
         });
     return threads;
 }
@@ -46,11 +50,8 @@ async function getEmailThreads(theadCount = 10) {
  * @param {*} threads
  * @returns Array of email thread ids
  */
-function getEmailThreadIds(threads) {
-    let tmap =  threads.threads.map((thread) => {
-        return thread.id;
-    });
-    return tmap;
+function getEmailThreadIds(thread, index, threads) {
+    threads[index] = thread.id;
 }
 
 /**
@@ -78,7 +79,10 @@ async function getEmailMessages(thread_ids) {
         //console.log("Message: ", message);
         parsedMessage = parseEmailBody(message);
         senderEmail = parseSenderEmail(message);
-        messages.push(parsedMessage);
+        messages.push({
+            "sender": senderEmail,
+            "body": parsedMessage
+        });
     }
     return messages;
 }
@@ -88,17 +92,11 @@ async function getEmailMessages(thread_ids) {
  * @param {*} thread_ids
  * @returns Array of email messages
  */
-async function getMessages() {
+async function getEmails() {
     let threads = await getEmailThreads(THREAD_COUNT);
-    let messages = await getEmailMessages(threads);
-    return messages;
+    let emails = await getEmailMessages(threads);
+    return emails;
 }
-
-getMessages().then((messages) => {
-    for (let i = 0; i < messages.length; i++) {
-        console.log(messages[i]);
-    }
-});
 
 /**
  * Converts the email message from base64 to text
@@ -107,16 +105,57 @@ getMessages().then((messages) => {
  */
 function parseEmailBody(message) {
     let b64text = message.payload.body;
-    if (b64text.size == 0) {
+    if (!b64text || b64text.size == 0) {
         b64text = message.payload.parts[0].body.data;
     } else {
         b64text = b64text.data;
     }
-    b64text = b64text.replace(/-/g, '+').replace(/_/g, '/');
-    let text = window.atob(b64text)
-    return text;
+    if (b64text) {
+        b64text = b64text.replace(/-/g, '+').replace(/_/g, '/');
+        let text = window.atob(b64text)
+        return text;
+    } else {
+        return "";
+    }  
 }
 
+/**
+ * Gets the sender email address from the email message
+ * @paraxm {*} message 
+ * @returns sender email address
+ */
 function parseSenderEmail(message) {
-    
+    let sender = "";
+    let headers = message.payload.headers;
+    headers.forEach((header) => {
+        if (header.name == "From") {
+            sender = header.value;
+        }
+    });
+    return sender;
 }
+
+/**
+ * Searches the email messages for the 2FA code
+ * @param {*} email
+ * @returns 2FA code
+ */
+function get2FACode(body) {
+    code = "";
+    regex2fa = ['/(\d{6})/g', '/(\d{6})/g', '/(\d{7})/g', '/(\d{8})/g'];
+    regex2fa.forEach((regex) => {
+        if (body.match(regex)) {
+            code = body.match(regex/g)[0];
+        }
+    });
+    console.log(body.match(/(\d{6})/g));
+    return code;
+}
+
+getEmails().then((messages) => {
+    console.log("Messages: ", messages);
+    messages.forEach((message) => {
+        code = get2FACode(message.body);
+        console.log("Code: ", code);
+    });
+});
