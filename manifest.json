@@ -26,7 +26,7 @@
         "service_worker": "service-worker.js"
     },
     "content_scripts": [{
-        "js": ["foreground.js"],
+        "js": ["content-script.js"],
         "matches": ["*://*/*"]
     }],
     "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoWMtTMJ76wwg1xxs4c5Z/OY8WSF6+pZtENp9d7xrzexkRxrOdQ9KPRO3tBlOyXOsk0bA7s+/gZ16TeUhRif9L4R9116RZoJjtisJ4e7attQAdN9nR5meoGKV52rI/lDB+Xj/x7KdIakQoj4fxbkxTC+IjA1w+SagdAUeFxabzo3BdZ5mL+REA53RBTQVsIUPs2SVlOlX+HksldNCpD1pHoNmkkxsEyQGjXL+k74uo8tvXsqdSKhzgtWeB/VmlRuI/dfIu3n8y70TiFPCnJpOxPYztxzicL9/aBSy2vryD5Vi+u+kbgwFpTCc+HL/P05bHMOMNezXaTUJegqj39SKSwIDAQAB",
