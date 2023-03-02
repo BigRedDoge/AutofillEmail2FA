@@ -77,6 +77,9 @@ async function getEmailMessages(thread_ids) {
         let message = await getMessage(thread_ids[i]);
         message = await message.json();
         //console.log("Message: ", message);
+        if ("error" in message) {
+            continue;
+        }
         parsedMessage = parseEmailBody(message);
         senderEmail = parseSenderEmail(message);
         messages.push({
@@ -151,15 +154,43 @@ function get2FACode(body) {
     console.log(body.match(/(\d{6})/g));
     return code;
 }
-/*
+
+async function checkSiteSender(sender) {
+    tabURL = await getTabURL();
+    const url = new URL(tabURL);
+    let host = url.host.split(".")[0]
+    if (sender.includes(host)) {
+        console.log("sender: ", sender)
+        console.log("host: ", host);
+        return true;
+    }
+}
+
+function getTabURL() {
+    return new Promise(function(resolve, reject) {
+        chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+            var activeTab = tabs[0];
+            var activeTabUrl = activeTab.url;
+            console.log("activeTabUrl: ", activeTabUrl);
+            if (activeTabUrl == undefined) {
+                reject("No active tab");
+            }
+            resolve(activeTabUrl);
+        });
+    });
+}
+
 getEmails().then((messages) => {
     console.log("Messages: ", messages);
-    messages.forEach((message) => {
-        code = get2FACode(message.body);
-        console.log("Code: ", code);
+    messages.forEach(async (message) => {
+        if (await checkSiteSender(message.sender)) {
+            console.log("2FA Code: ", get2FACode(message.body));
+        } else {
+            console.log("Sender not from page");
+        }
     });
 });
-*/
+
 (async () => {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     const response = await chrome.runtime.sendMessage({tab: tab});
